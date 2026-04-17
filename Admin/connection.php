@@ -17,7 +17,7 @@
 
   // 2. The URL used in the browser 
   // Fixed the double slashes here
-  const SITE_PATH = 'http://localhost/book-rental-website/';
+  const SITE_PATH = 'http://localhost/Book-Rental-Website/';
 
   // 3. Image Paths (Cleaned up slashes)
   const BOOK_IMAGE_SERVER_PATH = SERVER_PATH . 'Img/books/';

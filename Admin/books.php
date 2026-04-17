@@ -34,8 +34,9 @@ if (isset($_GET['type']) && $_GET['type'] != ' ') {
   }
 }
 
-$sql = "select books.*, categories.category from books left join categories on books.category_id=categories.id order by books.name asc";
+$sql = "SELECT * FROM books ORDER BY name ASC";
 $res = mysqli_query($con, $sql);
+if (!$res) { die("SQL Error: " . mysqli_error($con)); }
 ?>
 <!--Main layout-->
 <main>
