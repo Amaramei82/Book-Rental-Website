@@ -85,117 +85,202 @@ if (isset($_POST['submit'])) {
   }
 }
 ?>
+
+<style>
+  /* Enhanced Admin Manage Books Page Styles */
+  .admin-header {
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .admin-header h4 {
+    color: white;
+    margin: 0;
+    font-weight: 700;
+  }
+  .form-card {
+    background: #ffffff;
+    border-radius: 1.5rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+  .form-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .form-group {
+    flex: 1;
+    min-width: 200px;
+  }
+  .form-group.full-width {
+    flex: 1 1 100%;
+  }
+  .form-group label {
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    display: block;
+    color: #1e293b;
+  }
+  .form-group input, 
+  .form-group select, 
+  .form-group textarea {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.8rem;
+    transition: 0.2s;
+    background: #f8fafc;
+  }
+  .form-group input:focus, 
+  .form-group select:focus, 
+  .form-group textarea:focus {
+    border-color: #3b82f6;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+    background: #ffffff;
+  }
+  .btn-submit {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    color: white;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(37,99,235,0.3);
+  }
+  .error-message, .success-message {
+    padding: 0.6rem;
+    border-radius: 1rem;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  .error-message {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+  .success-message {
+    background: #d1fae5;
+    color: #065f46;
+  }
+  @media (max-width: 768px) {
+    .form-card {
+      padding: 1.2rem;
+    }
+    .form-grid {
+      gap: 1rem;
+    }
+  }
+</style>
+
 <main>
-    <div class="container pt-4">
-        <h4 class="fs-2 text-center ">Manage Books</h4>
-        <hr>
-        <br>
+  <div class="container pt-4">
+    <div class="admin-header">
+      <h4><i class="fas fa-book me-2"></i> <?php echo isset($_GET['id']) ? 'Edit Book' : 'Add New Book'; ?></h4>
     </div>
 
-    <form method="post" enctype="multipart/form-data">
-        <div class="row g-3">
-            <div class="col-sm-8">
-
-                <!-- ISBN -->
-                <div class="form-outline mb-4 ms-5">
-                    <input type="text" name="ISBN" value="<?php echo $ISBN ?>" id="Book name" class="form-control"
-                        required />
-                    <label class="form-label" for="Book name">Enter book ISBN</label>
-                </div>
-            </div>
-            <div class="col-sm">
-
-                <!-- Categories selector-->
-                <div>
-                    <select class="form-select" name="category_id">
-                        <option class="">Select Category</option>
-                        <?php
-            $categorySql = mysqli_query($con, "select id, category from categories order by category asc");
-            while ($row = mysqli_fetch_assoc($categorySql)) {
-              if ($row['id'] == $category_id) {
-                echo "<option selected value=" . $row['id'] . ">" . $row['category'] . "</option>";
-              } else {
-                echo "<option value=" . $row['id'] . ">" . $row['category'] . "</option>";
+    <div class="form-card">
+      <form method="post" enctype="multipart/form-data">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>ISBN <span class="text-danger">*</span></label>
+            <input type="text" name="ISBN" value="<?php echo htmlspecialchars($ISBN); ?>" required>
+          </div>
+          <div class="form-group">
+            <label>Category <span class="text-danger">*</span></label>
+            <select name="category_id" required>
+              <option value="">Select Category</option>
+              <?php
+              $categorySql = mysqli_query($con, "select id, category from categories order by category asc");
+              while ($row = mysqli_fetch_assoc($categorySql)) {
+                $selected = ($row['id'] == $category_id) ? 'selected' : '';
+                echo "<option value='{$row['id']}' $selected>" . htmlspecialchars($row['category']) . "</option>";
               }
-            }
-            ?>
-                    </select>
-                </div>
-            </div>
+              ?>
+            </select>
+          </div>
         </div>
 
-        <!-- Book Name -->
-        <div class="form-outline mb-4 mx-5">
-            <input type="text" name="name" value="<?php echo $name ?>" id="Book name" class="form-control" required />
-            <label class="form-label" for="Book name">Enter book name</label>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Book Name <span class="text-danger">*</span></label>
+            <input type="text" name="name" value="<?php echo htmlspecialchars($name); ?>" required>
+          </div>
+          <div class="form-group">
+            <label>Author <span class="text-danger">*</span></label>
+            <input type="text" name="author" value="<?php echo htmlspecialchars($author); ?>" required>
+          </div>
         </div>
 
-        <!-- Book Author -->
-        <div class="form-outline mb-4 mx-5">
-            <input type="text" name="author" value="<?php echo $author ?>" id="Book name" class="form-control"
-                required />
-            <label class="form-label" for="Book name">Enter book author name</label>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>MRP (₹) <span class="text-danger">*</span></label>
+            <input type="number" name="mrp" value="<?php echo $mrp; ?>" required>
+          </div>
+          <div class="form-group">
+            <label>Security Deposit (₹) <span class="text-danger">*</span></label>
+            <input type="number" name="security" value="<?php echo $security; ?>" required>
+          </div>
+          <div class="form-group">
+            <label>Rent per Day (₹) <span class="text-danger">*</span></label>
+            <input type="number" name="rent" value="<?php echo $rent; ?>" required>
+          </div>
+          <div class="form-group">
+            <label>Quantity <span class="text-danger">*</span></label>
+            <input type="number" name="qty" value="<?php echo $qty; ?>" required>
+          </div>
         </div>
 
-        <!-- MRP -->
-        <div class="form-outline mb-4 mx-5">
-            <input type="number" name="mrp" value="<?php echo $mrp ?>" id="Book name" class="form-control" required />
-            <label class="form-label" for="Book name">Enter MRP</label>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Book Image <?php if(!isset($_GET['id'])) echo '<span class="text-danger">*</span>'; ?></label>
+            <input type="file" name="img" <?php if(!isset($_GET['id'])) echo 'required'; ?>>
+            <?php if(isset($_GET['id']) && $img): ?>
+              <small class="text-muted">Leave empty to keep current image</small>
+            <?php endif; ?>
+          </div>
         </div>
 
-        <!-- security -->
-        <div class="form-outline mb-4 mx-5">
-            <input type="number" name="security" value="<?php echo $security ?>" id="Book name" class="form-control"
-                required />
-            <label class="form-label" for="Book name">Enter book security charges</label>
+        <div class="form-group full-width">
+          <label>Short Description <span class="text-danger">*</span></label>
+          <textarea name="short_desc" rows="3" required><?php echo htmlspecialchars($short_desc); ?></textarea>
         </div>
 
-        <!-- rent -->
-        <div class="form-outline mb-4 mx-5">
-            <input type="number" name="rent" value="<?php echo $rent ?>" id="Book name" class="form-control" required />
-            <label class="form-label" for="Book name">Enter book rent Cost</label>
+        <div class="form-group full-width">
+          <label>Full Description <span class="text-danger">*</span></label>
+          <textarea name="description" rows="5" required><?php echo htmlspecialchars($description); ?></textarea>
         </div>
 
-        <!-- qty -->
-        <div class="form-outline mb-4 mx-5">
-            <input type="number" name="qty" value="<?php echo $qty ?>" id="Book name" class="form-control" required />
-            <label class="form-label" for="Book name">Enter book quantity</label>
-        </div>
-        <!-- img -->
-        <div class="form-outline mb-4 mx-5">
-            <label class="form-label ms-2 p-1" for="Book name">Enter book image</label>
-            <input type="file" name="img" id="Book name" class="form-control" />
-        </div>
+        <?php if ($msg): ?>
+          <div class="error-message"><i class="fas fa-exclamation-triangle me-2"></i><?php echo $msg; ?></div>
+        <?php endif; ?>
+        <?php if ($error): ?>
+          <div class="error-message"><i class="fas fa-exclamation-circle me-2"></i><?php echo $error; ?></div>
+        <?php endif; ?>
 
-        <!-- short_desc -->
-        <div class="form-outline mb-4 mx-5">
-            <textarea name="short_desc" id="Book name" class="form-control"
-                required><?php echo $short_desc ?></textarea>
-            <label class="form-label" for="Book name">Enter book short description</label>
+        <div class="text-center mt-4">
+          <button type="submit" name="submit" class="btn-submit">
+            <i class="fas fa-save me-2"></i> <?php echo isset($_GET['id']) ? 'Update Book' : 'Add Book'; ?>
+          </button>
+          <a href="books.php" class="btn btn-secondary ms-2" style="border-radius: 2rem;">Cancel</a>
         </div>
-
-        <!-- description -->
-        <div class="form-outline mb-4 mx-5">
-            <textarea name="description" id="Book name" class="form-control"
-                required><?php echo $description ?></textarea>
-            <label class="form-label" for="Book name">Enter book description</label>
-        </div>
-        <div class="mb-1 d-flex justify-content-center field_error">
-            <?php echo $msg ?>
-        </div>
-        <div class="mb-1 d-flex justify-content-center">
-            <?php echo $error ?>
-        </div>
-        <!-- Submit button -->
-        <div class="text-center">
-            <button type="submit" name="submit" class="btn btn-primary mx-5">Submit</button>
-        </div>
-    </form>
+      </form>
+    </div>
+  </div>
 </main>
+
 <!-- MDB -->
 <script type="text/javascript" src="js/mdb.min.js"></script>
 <!-- Custom scripts -->
 <script type="text/javascript" src="js/admin.js"></script>
 </body>
-
 </html>

@@ -24,17 +24,7 @@ if (isset($_POST['submit'])) {
         $emailTemp = getSafeValue($con, $_POST['email']);
         if (filter_var($emailTemp, FILTER_VALIDATE_EMAIL)) {
           $email = getSafeValue($con, $_POST['email']);
-          //validation for mobile
-          //    if (empty($_POST["mobile"])) {
-          //      $mobileErr = "Please enter Phone Number";
-          //    } else {
-          //      $mobileTemp = getSafeValue($con, $_POST['mobile']);
-          //      if (preg_match("/^[0-9]{10}+$/", $mobileTemp)) {
           $mobile = getSafeValue($con, $_POST['mobile']);
-          //      } else {
-          //        $mobileErr = "Only numbers allowed";
-          //      }
-          //    }
           //Validation for password
           if (empty($_POST["password"])) {
             $passwordErr = "Please enter a password";
@@ -69,74 +59,200 @@ if (isset($_POST['submit'])) {
 <script>
 document.title = "Register | Book Rental";
 </script>
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-lg-12 col-xl-11">
-            <div class="card-body p-md-5">
-                <div class="row justify-content-center align-content-center">
-                    <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
-                        <div class="d-flex justify-content-center mb-3 mb-lg-4">
-                            <h2>Registration</h2>
-                        </div>
-                        <form class="mx-1 mx-md-4" method="post">
-                            <div class="d-flex align-items-center mb-4">
-                                <i class="fas fa-user fa-lg me-3 fa-fw"></i>
-                                <div class="form-floating flex-fill">
-                                    <input type="text" class="form-control" id="name" name="name" placeholder="name1234"
-                                        required />
-                                    <label for="name">Name</label>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-center mb-4">
-                                <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
-                                <div class="form-floating flex-fill">
-                                    <input type="email" class="form-control" id="email" name="email"
-                                        placeholder="name@example.com" required />
-                                    <label for="email">Email address</label>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-center mb-4">
-                                <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
-                                <div class="form-floating flex-fill">
-                                    <input type="number" min="1111111111" max="9999999999" class="form-control"
-                                        id="mobile" name="mobile" placeholder="number" required />
-                                    <label for="mobile">Mobile Number(Without +91)</label>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-center mb-4">
-                                <i class="fas fa-key fa-lg me-3 fa-fw"></i>
-                                <div class="form-floating flex-fill">
-                                    <input type="password" class="form-control" id="password" name="password"
-                                        placeholder="Password" required />
-                                    <label for="password">Password</label>
-                                </div>
-                            </div>
-                            <div id="error" class="text-center mb-3">
-                                <?php
-                echo $msg . "\n";
-                echo $nameErr . "\n";
-                echo $emailErr . "\n";
-                echo $mobileErr . "\n";
-                ?>
-                            </div>
-                            <div class="d-flex justify-content-center mb-3 mb-lg-4">
-                                <button type="submit" name="submit" id="submit" class="btn btn-primary">
-                                    Register
-                                </button>
-                            </div>
-                            <div style="text-align: center; margin-top: 30px">
-                                <a href="SignIn.php" class="text-decoration-none text-black">
-                                    Already have an account?
-                                    <span style="color: rgb(138, 110, 253)">Login</span></a>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+<style>
+  /* Enhanced Registration Page Styles */
+  .register-wrapper {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 1rem;
+  }
+  .register-card {
+    background: #ffffff;
+    border-radius: 2rem;
+    box-shadow: 0 20px 35px -12px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.2s;
+  }
+  .register-card:hover {
+    transform: translateY(-4px);
+  }
+  .register-header {
+    background: linear-gradient(135deg, #2563eb, #1e40af);
+    padding: 2rem;
+    text-align: center;
+    color: white;
+  }
+  .register-header h2 {
+    font-weight: 700;
+    margin: 0;
+    font-size: 1.8rem;
+  }
+  .register-header p {
+    margin: 0.5rem 0 0;
+    opacity: 0.9;
+  }
+  .register-body {
+    padding: 2rem;
+  }
+  .input-group-custom {
+    margin-bottom: 1.2rem;
+    position: relative;
+  }
+  .input-group-custom i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 1.1rem;
+    z-index: 10;
+  }
+  .input-group-custom input {
+    width: 100%;
+    padding: 0.9rem 1rem 0.9rem 2.8rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    font-size: 1rem;
+    transition: all 0.2s;
+    background: #f8fafc;
+  }
+  .input-group-custom input:focus {
+    border-color: #3b82f6;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+    background: #ffffff;
+  }
+  .error-text {
+    color: #ef4444;
+    font-size: 0.8rem;
+    margin-top: 0.3rem;
+    margin-left: 2.8rem;
+  }
+  .error-message {
+    background: #fee2e2;
+    color: #b91c1c;
+    padding: 0.7rem 1rem;
+    border-radius: 1rem;
+    margin: 1rem 0;
+    text-align: center;
+  }
+  .btn-register {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    color: white;
+    transition: 0.2s;
+    cursor: pointer;
+    margin-top: 0.5rem;
+  }
+  .btn-register:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(37,99,235,0.3);
+  }
+  .login-link {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eef2ff;
+  }
+  .login-link a {
+    color: #2563eb;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .login-link a:hover {
+    text-decoration: underline;
+  }
+  /* Dark mode */
+  body.dark-mode .register-card {
+    background: #1e293b;
+  }
+  body.dark-mode .input-group-custom input {
+    background: #0f172a;
+    border-color: #334155;
+    color: #e2e8f0;
+  }
+  body.dark-mode .input-group-custom i {
+    color: #94a3b8;
+  }
+  body.dark-mode .error-text {
+    color: #f87171;
+  }
+  body.dark-mode .login-link {
+    border-top-color: #334155;
+  }
+  body.dark-mode .login-link a {
+    color: #60a5fa;
+  }
+  @media (max-width: 576px) {
+    .register-body {
+      padding: 1.5rem;
+    }
+    .register-header {
+      padding: 1.5rem;
+    }
+  }
+</style>
+
+<div class="register-wrapper">
+  <div class="register-card">
+    <div class="register-header">
+      <h2><i class="fas fa-user-plus me-2"></i> Create Account</h2>
+      <p>Join our reading community</p>
     </div>
+    <div class="register-body">
+      <form method="post">
+        <div class="input-group-custom">
+          <i class="fas fa-user"></i>
+          <input type="text" name="name" id="name" placeholder="Full Name" required>
+        </div>
+        <?php if ($nameErr) echo '<div class="error-text"><i class="fas fa-exclamation-circle me-1"></i>' . $nameErr . '</div>'; ?>
+
+        <div class="input-group-custom">
+          <i class="fas fa-envelope"></i>
+          <input type="email" name="email" id="email" placeholder="Email Address" required>
+        </div>
+        <?php if ($emailErr) echo '<div class="error-text"><i class="fas fa-exclamation-circle me-1"></i>' . $emailErr . '</div>'; ?>
+
+        <div class="input-group-custom">
+          <i class="fas fa-phone-alt"></i>
+          <input type="number" min="1111111111" max="9999999999" name="mobile" id="mobile" placeholder="Mobile Number (without +91)" required>
+        </div>
+
+        <div class="input-group-custom">
+          <i class="fas fa-key"></i>
+          <input type="password" name="password" id="password" placeholder="Password" required>
+        </div>
+
+        <?php
+        // Display combined errors (from original logic)
+        if ($msg && $msg != '') {
+          echo '<div class="error-message"><i class="fas fa-exclamation-triangle me-2"></i>' . $msg . '</div>';
+        }
+        if ($passwordErr) {
+          echo '<div class="error-text"><i class="fas fa-exclamation-circle me-1"></i>' . $passwordErr . '</div>';
+        }
+        ?>
+
+        <div class="text-center mt-4">
+          <button type="submit" name="submit" id="submit" class="btn-register">
+            <i class="fas fa-user-check me-2"></i> Register
+          </button>
+        </div>
+
+        <div class="login-link">
+          Already have an account? <a href="SignIn.php">Login here</a>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
-<!--------------------------------------------------DARK MODE BUTTON----------------------------------------------------------->
+
+<!-- Dark Mode Toggle (preserved) -->
 <div id="dark-btn">
     <button onclick="DarkMode()" id="dark-btn" title="Toggle Light/Dark Mode">
         <span><i class="fas fa-adjust fa-lg text-white"></i></span>
@@ -149,3 +265,5 @@ document.title = "Register | Book Rental";
     }
     </script>
 </div>
+
+<?php require('footer.php'); ?>

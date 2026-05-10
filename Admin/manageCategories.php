@@ -48,35 +48,132 @@ if (isset($_POST['submit'])) {
 }
 
 ?>
+
+<style>
+  /* Enhanced Admin Manage Categories Page Styles */
+  .admin-header {
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .admin-header h4 {
+    color: white;
+    margin: 0;
+    font-weight: 700;
+  }
+  .form-card {
+    background: #ffffff;
+    border-radius: 1.5rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    padding: 2rem;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  .form-group label {
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    display: block;
+    color: #1e293b;
+  }
+  .form-group input {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.8rem;
+    transition: 0.2s;
+    background: #f8fafc;
+  }
+  .form-group input:focus {
+    border-color: #3b82f6;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+    background: #ffffff;
+  }
+  .btn-submit {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    color: white;
+    cursor: pointer;
+    transition: 0.2s;
+    width: 100%;
+  }
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(37,99,235,0.3);
+  }
+  .error-message, .success-message {
+    padding: 0.6rem;
+    border-radius: 1rem;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  .error-message {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+  .success-message {
+    background: #d1fae5;
+    color: #065f46;
+  }
+  .btn-cancel {
+    display: inline-block;
+    margin-top: 1rem;
+    text-align: center;
+    width: 100%;
+    color: #64748b;
+    text-decoration: none;
+  }
+  .btn-cancel:hover {
+    color: #dc2626;
+    text-decoration: underline;
+  }
+  @media (max-width: 768px) {
+    .form-card {
+      padding: 1.5rem;
+    }
+  }
+</style>
+
 <main>
-    <div class="container pt-4">
-        <h4 class="fs-2 text-center ">Manage Category</h4>
-        <hr>
-        <br>
+  <div class="container pt-4">
+    <div class="admin-header">
+      <h4><i class="fas fa-tag me-2"></i> <?php echo isset($_GET['id']) ? 'Edit Category' : 'Add New Category'; ?></h4>
     </div>
 
-    <form method="post">
-        <div class="form-outline mb-4 mx-5">
-            <input type="text" name="category" value="<?php echo $categories ?>" id="category" class="form-control"
-                required />
-            <label class="form-label" for="category">Enter category name</label>
+    <div class="form-card">
+      <form method="post">
+        <div class="form-group">
+          <label>Category Name <span class="text-danger">*</span></label>
+          <input type="text" name="category" value="<?php echo htmlspecialchars($categories); ?>" placeholder="e.g., Fiction, Mystery, Biography" required>
         </div>
-        <div class="mb-1 d-flex justify-content-center field_error">
-            <?php echo $msg ?>
-        </div>
-        <div class="mb-1 d-flex justify-content-center">
-            <?php echo $res ?>
-        </div>
-        <!-- Submit button -->
-        <div class="text-center">
-            <button type="submit" name="submit" class="btn btn-primary mx-5">Submit</button>
-        </div>
-    </form>
+
+        <?php if ($msg): ?>
+          <div class="error-message"><i class="fas fa-exclamation-triangle me-2"></i><?php echo $msg; ?></div>
+        <?php endif; ?>
+        <?php if ($res): ?>
+          <div class="error-message"><i class="fas fa-exclamation-circle me-2"></i><?php echo $res; ?></div>
+        <?php endif; ?>
+
+        <button type="submit" name="submit" class="btn-submit">
+          <i class="fas fa-save me-2"></i> <?php echo isset($_GET['id']) ? 'Update Category' : 'Add Category'; ?>
+        </button>
+        <a href="categories.php" class="btn-cancel"><i class="fas fa-arrow-left me-1"></i> Back to Categories</a>
+      </form>
+    </div>
+  </div>
 </main>
+
 <!-- MDB -->
 <script type="text/javascript" src="js/mdb.min.js"></script>
 <!-- Custom scripts -->
 <script type="text/javascript" src="js/admin.js"></script>
 </body>
-
 </html>
