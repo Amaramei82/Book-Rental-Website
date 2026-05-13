@@ -1,25 +1,24 @@
 <?php
+// Include your existing database connection ($con)
+require('connection.php'); 
 
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
+header('Content-Type: application/json');
 
-header("Content-Type: application/json");
+// We use the exact same SQL logic from your admin panel
+$sql = "SELECT books.*, categories.category 
+        FROM books 
+        LEFT JOIN categories ON books.category_id=categories.id 
+        WHERE books.status = 1 
+        ORDER BY books.name ASC";
 
-include "config/db.php";
-
-$sql = "SELECT * FROM books";
-$result = mysqli_query($con, $sql);
-
+$res = mysqli_query($con, $sql);
 $books = [];
 
-while ($row = mysqli_fetch_assoc($result)) {
+while ($row = mysqli_fetch_assoc($res)) {
+    // Ensure the image path is a full URL so Flutter can load it
+    $row['img_url'] = BOOK_IMAGE_SITE_PATH . $row['img'];
     $books[] = $row;
 }
 
-echo json_encode([
-    "status" => "success",
-    "data" => $books
-]);
-
+echo json_encode($books);
 ?>
