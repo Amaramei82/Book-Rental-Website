@@ -1,0 +1,27 @@
+{
+  "name": "book-rental-website",
+  "version": "1.0.0",
+  "description": "Book rental website Using PHP HTML CSS JS and Bootstrap\r It is a mini-project developed by me on Web development in my 3rd sem of Bsc IT.\r contribution and fork allowed for personal project use but no copyright and commerial use allowed",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Amaramei82/Book-Rental-Website.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Amaramei82/Book-Rental-Website/issues"
+  },
+  "homepage": "https://github.com/Amaramei82/Book-Rental-Website#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "md5": "^2.3.0",
+    "mysql": "^2.18.1"
+  }
+}

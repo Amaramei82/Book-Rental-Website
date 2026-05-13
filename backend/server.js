@@ -1,15 +1,15 @@
 const express = require("express");
 const mysql = require("mysql");
 const cors = require("cors");
-const md5 = require("md5"); // Database uses MD5 for passwords
+const md5 = require("md5");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// DB Connection - Updated to match your database name
 const db = mysql.createConnection({
   host: "localhost",
+  port: 3307,
   user: "root",
   password: "",
   database: "book-rental-website" 
@@ -20,18 +20,14 @@ db.connect(err => {
   else console.log("DB Connected to mini_project");
 });
 
-// =======================
-// LOGIN (Updated for MD5)
-// =======================
+// LOGIN
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
-  // Your DB stores passwords in MD5
   const hashedPassword = md5(password);
 
   const sql = "SELECT id, name, email, mobile FROM users WHERE email=? AND password=?";
   db.query(sql, [email, hashedPassword], (err, result) => {
     if (err) return res.status(500).json({ success: false, message: err.message });
-
     if (result.length > 0) {
       res.json({ success: true, user: result[0] });
     } else {
@@ -40,12 +36,9 @@ app.post("/login", (req, res) => {
   });
 });
 
-// =======================
 // GET USER ORDERS
-// =======================
-app.get("/user/orders/:id", (req, res) => {
+app.get("/users/orders/:id", (req, res) => {
   const userId = req.params.id;
-  // Joins orders with order_status table from your SQL
   const sql = `
     SELECT o.*, os.status_name 
     FROM orders o 
@@ -59,30 +52,27 @@ app.get("/user/orders/:id", (req, res) => {
   });
 });
 
-// =======================
 // GET BOOKS BY CATEGORY
-// =======================
-app.get("/books/category/:catId", (req, res) => {
+app.get("/books/categories/:catId", (req, res) => {
   const catId = req.params.catId;
-  // Filters books by category_id and status=1 (Active)
+  // In mini_project.sql, the column is category_id
   db.query("SELECT * FROM books WHERE category_id = ? AND status = 1", [catId], (err, result) => {
     if (err) return res.status(500).json(err);
     res.json(result);
   });
 });
 
-// =======================
 // PLACE NEW ORDER
-// =======================
 app.post("/orders/place", (req, res) => {
-  const { user_id, address, pin, total, duration, book_id, price } = req.body;
-  const date = new Date().toISOString().slice(0, 19).replace('T', ' ');
+  // Extract all necessary fields including book_id and price for details
+  const { user_id, address, address2, pin, payment_method, total, duration, book_id, price } = req.body;
+  const orderDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
   // 1. Insert into 'orders' table
-  const orderSql = `INSERT INTO orders (user_id, address, pin, total, payment_status, order_status, date, duration, payment_method) 
-                    VALUES (?, ?, ?, ?, 'pending', 1, ?, ?, 'COD')`;
+  const orderSql = `INSERT INTO orders (user_id, address, address2, pin, payment_method, total, payment_status, order_status, date, duration) 
+                    VALUES (?, ?, ?, ?, ?, ?, 'success', 1, ?, ?)`;
 
-  db.query(orderSql, [user_id, address, pin, total, date, duration], (err, result) => {
+  db.query(orderSql, [user_id, address, address2, pin, payment_method, total, orderDate, duration], (err, result) => {
     if (err) return res.status(500).json({ success: false, message: err.message });
 
     const orderId = result.insertId;
@@ -90,7 +80,7 @@ app.post("/orders/place", (req, res) => {
     // 2. Insert into 'order_detail' table
     const detailSql = `INSERT INTO order_detail (order_id, book_id, price, time) VALUES (?, ?, ?, ?)`;
     db.query(detailSql, [orderId, book_id, price, duration], (err2) => {
-      if (err2) return res.status(500).json({ success: false });
+      if (err2) return res.status(500).json({ success: false, message: err2.message });
       res.json({ success: true, message: "Order placed successfully", order_id: orderId });
     });
   });
