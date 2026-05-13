@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.1
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Jan 03, 2022 at 05:16 PM
--- Server version: 10.4.22-MariaDB
--- PHP Version: 8.0.13
+-- Host: 127.0.0.1:3307:3307
+-- Generation Time: May 13, 2026 at 05:27 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `mini_project`
+-- Database: `book-rental-website`
 --
 
 -- --------------------------------------------------------
@@ -31,7 +31,7 @@ CREATE TABLE `admin` (
   `id` int(11) NOT NULL,
   `email` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `admin`
@@ -39,7 +39,8 @@ CREATE TABLE `admin` (
 
 INSERT INTO `admin` (`id`, `email`, `password`) VALUES
 (1, 'gauravnegi9634@gmail.com', '29be54a52396750258d886abc5417fda'),
-(2, 'charu@gmail.com', '560f9bb94e9f9fc27d85f0175eff2d5c');
+(2, 'charu@gmail.com', '560f9bb94e9f9fc27d85f0175eff2d5c'),
+(3, 'admin@gmail.com', '0192023a7bbd73250516f069df18b500');
 
 -- --------------------------------------------------------
 
@@ -63,7 +64,7 @@ CREATE TABLE `books` (
   `description` text NOT NULL,
   `status` tinyint(4) NOT NULL DEFAULT 1,
   `price` int(3) GENERATED ALWAYS AS (coalesce(`security`,0) + coalesce(`rent`,0)) VIRTUAL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `books`
@@ -97,7 +98,7 @@ CREATE TABLE `categories` (
   `id` mediumint(9) NOT NULL,
   `category` varchar(50) NOT NULL,
   `status` tinyint(4) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `categories`
@@ -108,7 +109,7 @@ INSERT INTO `categories` (`id`, `category`, `status`) VALUES
 (7, 'Action & Adventure', 1),
 (12, 'Business & Economics', 1),
 (13, 'Arts,Film & photography', 0),
-(14, 'Children\'s & Young Adult', 0),
+(14, 'Children\'s & Young Adult', 1),
 (15, 'Comics & Mangas', 0),
 (16, 'Crime,Horror & Science Fiction', 1),
 (18, 'Biographies, Diaries & True Accounts', 1),
@@ -121,7 +122,7 @@ INSERT INTO `categories` (`id`, `category`, `status`) VALUES
 (25, 'Higher Education Textbooks', 1),
 (26, 'Historical Fiction', 1),
 (27, 'History', 1),
-(28, 'Humour', 0),
+(28, 'Humour', 1),
 (29, 'Language, Linguistics & Writing', 1),
 (30, 'Law', 1),
 (31, 'Literature & Fiction', 1),
@@ -149,7 +150,7 @@ CREATE TABLE `contact_us` (
   `mobile` bigint(10) NOT NULL,
   `message` text NOT NULL,
   `date` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `contact_us`
@@ -180,7 +181,7 @@ CREATE TABLE `orders` (
   `order_status` int(11) NOT NULL,
   `date` datetime NOT NULL,
   `duration` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `orders`
@@ -208,7 +209,7 @@ CREATE TABLE `order_detail` (
   `book_id` int(11) NOT NULL,
   `price` float NOT NULL,
   `time` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `order_detail`
@@ -233,7 +234,7 @@ INSERT INTO `order_detail` (`id`, `order_id`, `book_id`, `price`, `time`) VALUES
 CREATE TABLE `order_status` (
   `id` int(11) NOT NULL,
   `status_name` varchar(15) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `order_status`
@@ -260,7 +261,7 @@ CREATE TABLE `users` (
   `mobile` bigint(20) NOT NULL,
   `doj` datetime NOT NULL,
   `password` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
@@ -334,7 +335,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `admin`
 --
 ALTER TABLE `admin`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `books`
@@ -376,7 +377,7 @@ ALTER TABLE `order_status`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
