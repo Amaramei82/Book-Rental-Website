@@ -24,22 +24,35 @@ db.connect(err => {
   }
 });
 
+// ROOT ROUTE
 app.get("/", (req, res) => {
   res.send("Book Rental API is running!");
 });
 
 // =======================
-// 1. USER LOGIN
+// 1. USER REGISTRATION
+// =======================
+app.post("/register", (req, res) => {
+  const { name, email, mobile, password } = req.body;
+  const hashedPassword = md5(password);
+
+  const sql = "INSERT INTO users (name, email, mobile, password) VALUES (?, ?, ?, ?)";
+  db.query(sql, [name, email, mobile, hashedPassword], (err, result) => {
+    if (err) return res.status(500).json({ success: false, error: err.message });
+    res.json({ success: true, message: "User registered successfully" });
+  });
+});
+
+// =======================
+// 2. USER LOGIN
 // =======================
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
   const hashedPassword = md5(password);
 
-  // Schema check: users table has name, email, mobile, password
   const sql = "SELECT id, name, email, mobile FROM users WHERE email = ? AND password = ?";
   db.query(sql, [email, hashedPassword], (err, result) => {
     if (err) return res.status(500).json({ success: false, error: err.message });
-
     if (result.length > 0) {
       res.json({ success: true, user: result[0] });
     } else {
@@ -49,11 +62,10 @@ app.post("/login", (req, res) => {
 });
 
 // =======================
-// 2. GET BOOKS BY CATEGORY
+// 3. GET BOOKS BY CATEGORY
 // =======================
 app.get("/books/categories/:catId", (req, res) => {
   const catId = req.params.catId;
-  // Schema check: books table uses category_id and status (1 for active)
   const sql = "SELECT * FROM books WHERE category_id = ? AND status = 1";
   db.query(sql, [catId], (err, result) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -62,26 +74,7 @@ app.get("/books/categories/:catId", (req, res) => {
 });
 
 // =======================
-// 3. GET USER ORDERS
-// =======================
-app.get("/users/orders/:id", (req, res) => {
-  const userId = req.params.id;
-  // Schema check: joins orders with order_status for descriptive status names
-  const sql = `
-    SELECT o.*, os.status_name 
-    FROM orders o 
-    JOIN order_status os ON o.order_status = os.id 
-    WHERE o.user_id = ? 
-    ORDER BY o.date DESC`;
-
-  db.query(sql, [userId], (err, result) => {
-    if (err) return res.status(500).json({ success: false, error: err.message });
-    res.json(result);
-  });
-});
-
-// =======================
-// 4. PLACE NEW ORDER
+// 4. PLACE NEW ORDER (The logic you were missing)
 // =======================
 app.post("/orders/place", (req, res) => {
   const { 
@@ -90,37 +83,73 @@ app.post("/orders/place", (req, res) => {
     book_id, price 
   } = req.body;
   
+  // Create a MySQL compatible timestamp
   const orderDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
-  // Step A: Insert into 'orders' table
-  // Columns per SQL: user_id, address, address2, pin, payment_method, total, payment_status, order_status, date, duration
+  // Step A: Create the main order entry
   const orderSql = `
     INSERT INTO orders 
     (user_id, address, address2, pin, payment_method, total, payment_status, order_status, date, duration) 
-    VALUES (?, ?, ?, ?, ?, ?, 'success', 1, ?, ?)`;
+    VALUES (?, ?, ?, ?, ?, ?, 'Pending', 1, ?, ?)`;
 
   db.query(orderSql, [user_id, address, address2, pin, payment_method, total, orderDate, duration], (err, result) => {
     if (err) return res.status(500).json({ success: false, error: err.message });
 
     const orderId = result.insertId;
 
-    // Step B: Insert into 'order_detail' table
-    // Columns per SQL: order_id, book_id, price, time
+    // Step B: Create the order details (mapping the book to the order)
     const detailSql = "INSERT INTO order_detail (order_id, book_id, price, time) VALUES (?, ?, ?, ?)";
     db.query(detailSql, [orderId, book_id, price, duration], (err2) => {
       if (err2) return res.status(500).json({ success: false, error: err2.message });
       
       res.json({ 
         success: true, 
-        message: "Order placed successfully", 
+        message: "Order recorded in database!", 
         order_id: orderId 
       });
     });
   });
 });
 
+// =======================
+// 5. GET ALL DATA (FOR ADMIN/DEBUG)
+// =======================
+app.get("/books", (req, res) => {
+  db.query("SELECT * FROM books", (err, result) => {
+    if (err) return res.status(500).json(err);
+    res.json(result);
+  });
+});
+
+app.get("/categories", (req, res) => {
+  db.query("SELECT * FROM categories", (err, result) => {
+    if (err) return res.status(500).json(err);
+    res.json(result);
+  });
+});
+
+app.get("/orders", (req, res) => {
+  const sql = `
+    SELECT o.*, u.name as customer_name, os.status_name 
+    FROM orders o 
+    JOIN users u ON o.user_id = u.id
+    JOIN order_status os ON o.order_status = os.id
+    ORDER BY o.date DESC`;
+  db.query(sql, (err, result) => {
+    if (err) return res.status(500).json(err);
+    res.json(result);
+  });
+});
+
+app.get("/users", (req, res) => {
+  db.query("SELECT id, name, email, mobile FROM users", (err, result) => {
+    if (err) return res.status(500).json(err);
+    res.json(result);
+  });
+});
+
 // Start Server
 const PORT = 3001;
 app.listen(PORT, () => {
-  console.log(`Book Rental API is running on http://localhost:${PORT}`);
+  console.log(`Server running: http://localhost:${PORT}`);
 });
