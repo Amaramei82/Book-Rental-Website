@@ -180,13 +180,14 @@ if (isset($_POST['status_id'])) {
         </thead>
         <tbody>
           <?php
-          $sql = "select orders.*,name,status_name from orders
-                                        JOIN order_detail ON orders.id=order_detail.order_id
-                                        JOIN books ON order_detail.book_id=books.id
-                                        JOIN order_status ON orders.order_status=order_status.id 
-                                        order by date desc 
-                                        WHERE `order_status.status_name` LIKE '%Cancelled%'";
-          $res = mysqli_query($con, $sql);
+          $sql = "SELECT orders.*, books.name, order_status.status_name 
+                  FROM orders
+                  JOIN order_detail ON orders.id = order_detail.order_id
+                  JOIN books ON order_detail.book_id = books.id
+                  JOIN order_status ON orders.order_status = order_status.id
+                  WHERE order_status.status_name LIKE '%Cancelled%'
+                  ORDER BY orders.date DESC";
+          $res=mysqli_query($con,$sql);
           while ($row = mysqli_fetch_assoc($res)) { ?>
           <tr>
             <td>#<?php echo $row['id']; ?></td>

@@ -1,21 +1,31 @@
 <?php
+session_start();
+
 require('connection.php');
 require('function.php');
-$msg = $passwordTemp = '';
-if (isset($_POST['submit'])) {
-    $email = getSafeValue($con, $_POST['email']);
-    $passwordTemp = getSafeValue($con, $_POST['password']);
-    $password = md5($passwordTemp);
-    $sql = "select * from admin where email='$email' and password='$password'";
-    $res = mysqli_query($con, $sql);
-    $count = mysqli_num_rows($res);
-    if ($count > 0) {
-        $_SESSION['ADMIN_LOGIN'] = 'yes';
-        $_SESSION['ADMIN_email'] = $email;
+
+$msg='';
+
+if(isset($_POST['submit'])){
+
+    $email=mysqli_real_escape_string($con,$_POST['email']);
+    $password=md5($_POST['password']);
+
+    $sql="SELECT * FROM admin WHERE email='$email' AND password='$password'";
+
+    $res=mysqli_query($con,$sql);
+
+
+    if(mysqli_num_rows($res)>0){
+
+        $_SESSION['ADMIN_LOGIN']='yes';
+        $_SESSION['ADMIN_email']=$email;
+
         header('location:categories.php');
-        die();
-    } else {
-        $msg = "Invalid Username/Password";
+        exit();
+
+    }else{
+        $msg="Invalid Username/Password";
     }
 }
 ?>
