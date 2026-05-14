@@ -51,15 +51,41 @@ app.post("/register", (req, res) => {
 // =======================
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
+
+  console.log("INPUT EMAIL:", email);
+  console.log("INPUT PASSWORD:", password);
+
   const hashedPassword = md5(password);
 
-  const sql = "SELECT id, name, email, mobile FROM users WHERE email = ? AND password = ?";
+  console.log("HASH:", hashedPassword);
+
+  const sql = `
+    SELECT id, name, email, mobile 
+    FROM users 
+    WHERE email = ? AND password = ?
+  `;
+
   db.query(sql, [email, hashedPassword], (err, result) => {
-    if (err) return res.status(500).json({ success: false, error: err.message });
+
+    console.log("DB RESULT:", result);
+
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        error: err.message
+      });
+    }
+
     if (result.length > 0) {
-      res.json({ success: true, user: result[0] });
+      res.json({
+        success: true,
+        user: result[0]
+      });
     } else {
-      res.json({ success: false, message: "Invalid email or password" });
+      res.json({
+        success: false,
+        message: "Invalid email or password"
+      });
     }
   });
 });
@@ -153,6 +179,6 @@ app.get("/users", (req, res) => {
 
 // Start Server
 const PORT = 3001;
-app.listen(PORT, () => {
-  console.log(`Server running: http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
 });
