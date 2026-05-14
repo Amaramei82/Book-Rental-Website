@@ -50,41 +50,64 @@ app.post("/register", (req, res) => {
 // 2. USER LOGIN
 // =======================
 app.post("/login", (req, res) => {
-  const { email, password } = req.body;
+  let { email, password } = req.body;
 
-  console.log("INPUT EMAIL:", email);
-  console.log("INPUT PASSWORD:", password);
+  email = email.trim().toLowerCase();
+  password = password.trim();
 
   const hashedPassword = md5(password);
 
-  console.log("HASH:", hashedPassword);
+  console.log("INPUT EMAIL:", email);
+  console.log("INPUT PASSWORD:", password);
+  console.log("HASHED PASSWORD:", hashedPassword);
 
-  const sql = `
-    SELECT id, name, email, mobile 
-    FROM users 
-    WHERE email = ? AND password = ?
-  `;
+  const sql = "SELECT * FROM users WHERE LOWER(TRIM(email)) = ?";
 
-  db.query(sql, [email, hashedPassword], (err, result) => {
-
-    console.log("DB RESULT:", result);
+  db.query(sql, [email], (err, result) => {
 
     if (err) {
+      console.log(err);
       return res.status(500).json({
         success: false,
         error: err.message
       });
     }
 
+    console.log("DATABASE USER:", result);
+
     if (result.length > 0) {
-      res.json({
-        success: true,
-        user: result[0]
-      });
+
+      console.log("DB PASSWORD:", result[0].password);
+
+      if (result[0].password === hashedPassword) {
+
+        return res.json({
+          success: true,
+          user: {
+            id: result[0].id,
+            name: result[0].name,
+            email: result[0].email,
+            mobile: result[0].mobile
+          }
+        });
+
+      } else {
+
+        console.log("PASSWORD NOT MATCH");
+
+        return res.json({
+          success: false,
+          message: "Invalid password"
+        });
+      }
+
     } else {
-      res.json({
+
+      console.log("EMAIL NOT FOUND");
+
+      return res.json({
         success: false,
-        message: "Invalid email or password"
+        message: "Email not found"
       });
     }
   });
