@@ -167,9 +167,42 @@ app.post("/orders/place", (req, res) => {
 // 5. GET ALL DATA (FOR ADMIN/DEBUG)
 // =======================
 app.get("/books", (req, res) => {
-  db.query("SELECT * FROM books", (err, result) => {
-    if (err) return res.status(500).json(err);
-    res.json(result);
+
+  const sql = `
+    SELECT 
+      books.id,
+      books.name,
+      books.author,
+      books.description,
+      books.img,
+      categories.category
+    FROM books
+    LEFT JOIN categories
+    ON books.category_id = categories.id
+    WHERE books.status = 1
+    ORDER BY books.name ASC
+  `;
+
+  db.query(sql, (err, result) => {
+
+    if (err) {
+
+      return res.status(500).json({
+        error: err.message
+      });
+    }
+
+    const books = result.map((book) => {
+
+      return {
+        ...book,
+        img_url:
+            "http://192.168.1.114/book-rental-website/media/books/" +
+            book.img
+      };
+    });
+
+    res.json(books);
   });
 });
 
