@@ -6,6 +6,14 @@ const md5 = require("md5");
 const app = express();
 app.use(cors());
 app.use(express.json());
+const path = require("path");
+
+app.use(
+  "/Img/books",
+  express.static(
+    path.join(__dirname, "..", "Img", "books")
+  )
+);
 
 // Database Connection
 const db = mysql.createConnection({
@@ -197,7 +205,7 @@ app.get("/books", (req, res) => {
       return {
         ...book,
         img_url:
-            "http://192.168.1.114/book-rental-website/media/books/" +
+            "http://192.168.1.114:3001/Img/books/" +
             book.img
       };
     });
