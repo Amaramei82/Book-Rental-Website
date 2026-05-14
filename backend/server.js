@@ -35,9 +35,12 @@ app.get("/", (req, res) => {
 app.post("/register", (req, res) => {
   const { name, email, mobile, password } = req.body;
   const hashedPassword = md5(password);
+  
+  // Maghimo og timestamp para sa DOJ sama sa gibuhat sa PHP
+  const doj = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
-  const sql = "INSERT INTO users (name, email, mobile, password) VALUES (?, ?, ?, ?)";
-  db.query(sql, [name, email, mobile, hashedPassword], (err, result) => {
+  const sql = "INSERT INTO users (name, email, mobile, password, doj) VALUES (?, ?, ?, ?, ?)";
+  db.query(sql, [name, email, mobile, hashedPassword, doj], (err, result) => {
     if (err) return res.status(500).json({ success: false, error: err.message });
     res.json({ success: true, message: "User registered successfully" });
   });
