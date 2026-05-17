@@ -349,23 +349,42 @@ app.post("/orders/place", (req, res) => {
 });
 
 // =======================
-// GET ORDERS
+// GET ORDERS User by ID
 // =======================
-app.get("/orders", (req, res) => {
+app.get("/orders/user/:id", (req, res) => {
+
+  const userId = req.params.id;
+
   const sql = `
     SELECT
-      o.*,
-      u.name AS customer_name,
-      os.status_name
+      o.id,
+      o.date,
+      o.address,
+      o.payment_method,
+      o.payment_status,
+      o.duration,
+      os.status_name,
+      b.name AS book_name,
+      od.price
+
     FROM orders o
-    JOIN users u
-    ON o.user_id = u.id
+
+    JOIN order_detail od
+    ON o.id = od.order_id
+
+    JOIN books b
+    ON od.book_id = b.id
+
     JOIN order_status os
     ON o.order_status = os.id
+
+    WHERE o.user_id = ?
+
     ORDER BY o.date DESC
   `;
 
-  db.query(sql, (err, result) => {
+  db.query(sql, [userId], (err, result) => {
+
     if (err) {
       return res.status(500).json({
         error: err.message,
@@ -377,16 +396,41 @@ app.get("/orders", (req, res) => {
 });
 
 // =======================
-// GET USERS
+// GET ORDERS
 // =======================
-app.get("/users", (req, res) => {
+app.get("/orders", (req, res) => {
   const sql = `
     SELECT
-      id,
-      name,
-      email,
-      mobile
-    FROM users
+      o.id,
+      o.address,
+      o.payment_method,
+      o.payment_status,
+      o.duration,
+      o.date,
+
+      od.price,
+
+      b.name AS book_name,
+
+      u.name AS customer_name,
+
+      os.status_name
+
+    FROM orders o
+
+    JOIN users u
+    ON o.user_id = u.id
+
+    JOIN order_status os
+    ON o.order_status = os.id
+
+    JOIN order_detail od
+    ON o.id = od.order_id
+
+    JOIN books b
+    ON od.book_id = b.id
+
+    ORDER BY o.date DESC
   `;
 
   db.query(sql, (err, result) => {
