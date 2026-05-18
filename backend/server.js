@@ -6,6 +6,9 @@ const path = require("path");
 
 const app = express();
 
+// =======================
+// MIDDLEWARE
+// =======================
 app.use(cors());
 app.use(express.json());
 
@@ -14,7 +17,9 @@ app.use(express.json());
 // =======================
 app.use(
   "/Img/books",
-  express.static(path.join(__dirname, "..", "Img", "books"))
+  express.static(
+    path.join(__dirname, "..", "Img", "books")
+  )
 );
 
 // =======================
@@ -30,7 +35,7 @@ const db = mysql.createConnection({
 
 db.connect((err) => {
   if (err) {
-    console.error("DB Connection Error:", err.message);
+    console.log("DB Connection Error:", err.message);
   } else {
     console.log("Connected to database successfully!");
   }
@@ -47,9 +52,18 @@ app.get("/", (req, res) => {
 // USER REGISTRATION
 // =======================
 app.post("/register", (req, res) => {
-  const { name, email, mobile, password } = req.body;
+  let { name, email, mobile, password } = req.body;
 
-  const hashedPassword = md5(password);
+  if (!name || !email || !mobile || !password) {
+    return res.status(400).json({
+      success: false,
+      message: "All fields are required.",
+    });
+  }
+  name = name.trim();
+  email = email.trim().toLowerCase(); 
+  mobile = mobile.trim();
+  const hashedPassword = md5(password.trim());
 
   const doj = new Date()
     .toISOString()
@@ -57,8 +71,8 @@ app.post("/register", (req, res) => {
     .replace("T", " ");
 
   const sql = `
-    INSERT INTO users
-    (name, email, mobile, password, doj)
+    INSERT INTO users 
+    (name, email, mobile, password, doj) 
     VALUES (?, ?, ?, ?, ?)
   `;
 
@@ -67,9 +81,15 @@ app.post("/register", (req, res) => {
     [name, email, mobile, hashedPassword, doj],
     (err, result) => {
       if (err) {
+        console.error("Registration DB Error:", err.message);
+        
+        const errorMsg = err.code === 'ER_DUP_ENTRY' 
+          ? "This email address is already registered." 
+          : err.message;
+
         return res.status(500).json({
           success: false,
-          error: err.message,
+          message: errorMsg,
         });
       }
 
@@ -92,6 +112,10 @@ app.post("/login", (req, res) => {
 
   const hashedPassword = md5(password);
 
+  console.log("INPUT EMAIL:", email);
+  console.log("INPUT PASSWORD:", password);
+  console.log("HASHED PASSWORD:", hashedPassword);
+
   const sql = `
     SELECT *
     FROM users
@@ -100,13 +124,19 @@ app.post("/login", (req, res) => {
 
   db.query(sql, [email], (err, result) => {
     if (err) {
+      console.log(err);
+
       return res.status(500).json({
         success: false,
         error: err.message,
       });
     }
 
+    console.log("DATABASE USER:", result);
+
     if (result.length === 0) {
+      console.log("EMAIL NOT FOUND");
+
       return res.json({
         success: false,
         message: "Email not found",
@@ -115,7 +145,11 @@ app.post("/login", (req, res) => {
 
     const user = result[0];
 
+    console.log("DB PASSWORD:", user.password);
+
     if (user.password !== hashedPassword) {
+      console.log("PASSWORD NOT MATCH");
+
       return res.json({
         success: false,
         message: "Invalid password",
@@ -135,6 +169,30 @@ app.post("/login", (req, res) => {
 });
 
 // =======================
+// GET ALL USERS
+// =======================
+app.get("/users", (req, res) => {
+  const sql = `
+    SELECT
+      id,
+      name,
+      email,
+      mobile
+    FROM users
+  `;
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      return res.status(500).json({
+        error: err.message,
+      });
+    }
+
+    res.json(result);
+  });
+});
+
+// =======================
 // GET ALL BOOKS
 // =======================
 app.get("/books", (req, res) => {
@@ -147,10 +205,14 @@ app.get("/books", (req, res) => {
       books.img,
       books.category_id,
       categories.category
+
     FROM books
+
     LEFT JOIN categories
     ON books.category_id = categories.id
+
     WHERE books.status = 1
+
     ORDER BY books.name ASC
   `;
 
@@ -177,8 +239,7 @@ app.get("/books", (req, res) => {
       img: book.img || "",
 
       img_url:
-        "http://192.168.1.114:3001/Img/books/" +
-        book.img,
+        `http://192.168.1.114:3001/Img/books/${book.img}`,
     }));
 
     res.json(books);
@@ -200,9 +261,12 @@ app.get("/books/categories/:catId", (req, res) => {
       books.img,
       books.category_id,
       categories.category
+
     FROM books
+
     LEFT JOIN categories
     ON books.category_id = categories.id
+
     WHERE books.category_id = ?
     AND books.status = 1
   `;
@@ -230,8 +294,7 @@ app.get("/books/categories/:catId", (req, res) => {
       img: book.img || "",
 
       img_url:
-        "http://192.168.1.114:3001/Img/books/" +
-        book.img,
+        `http://192.168.1.114:3001/Img/books/${book.img}`,
     }));
 
     res.json(books);
@@ -243,9 +306,14 @@ app.get("/books/categories/:catId", (req, res) => {
 // =======================
 app.get("/categories", (req, res) => {
   const sql = `
-    SELECT id, category
+    SELECT
+      id,
+      category
+
     FROM categories
+
     WHERE status = 1
+
     ORDER BY category ASC
   `;
 
@@ -275,6 +343,8 @@ app.post("/orders/place", (req, res) => {
     book_id,
     price,
   } = req.body;
+
+  console.log("ORDER DATA:", req.body);
 
   const orderDate = new Date()
     .toISOString()
@@ -312,6 +382,8 @@ app.post("/orders/place", (req, res) => {
     ],
     (err, result) => {
       if (err) {
+        console.log("ORDER INSERT ERROR:", err);
+
         return res.status(500).json({
           success: false,
           error: err.message,
@@ -322,15 +394,27 @@ app.post("/orders/place", (req, res) => {
 
       const detailSql = `
         INSERT INTO order_detail
-        (order_id, book_id, price, time)
+        (
+          order_id,
+          book_id,
+          price,
+          time
+        )
         VALUES (?, ?, ?, ?)
       `;
 
       db.query(
         detailSql,
-        [orderId, book_id, price, duration],
+        [
+          orderId,
+          book_id,
+          price,
+          duration,
+        ],
         (err2) => {
           if (err2) {
+            console.log("ORDER DETAIL ERROR:", err2);
+
             return res.status(500).json({
               success: false,
               error: err2.message,
@@ -349,10 +433,9 @@ app.post("/orders/place", (req, res) => {
 });
 
 // =======================
-// GET ORDERS User by ID
+// GET ORDERS BY USER ID
 // =======================
 app.get("/orders/user/:id", (req, res) => {
-
   const userId = req.params.id;
 
   const sql = `
@@ -363,19 +446,22 @@ app.get("/orders/user/:id", (req, res) => {
       o.payment_method,
       o.payment_status,
       o.duration,
+
       os.status_name,
+
       b.name AS book_name,
+
       od.price
 
     FROM orders o
 
-    JOIN order_detail od
+    LEFT JOIN order_detail od
     ON o.id = od.order_id
 
-    JOIN books b
+    LEFT JOIN books b
     ON od.book_id = b.id
 
-    JOIN order_status os
+    LEFT JOIN order_status os
     ON o.order_status = os.id
 
     WHERE o.user_id = ?
@@ -384,7 +470,6 @@ app.get("/orders/user/:id", (req, res) => {
   `;
 
   db.query(sql, [userId], (err, result) => {
-
     if (err) {
       return res.status(500).json({
         error: err.message,
@@ -396,7 +481,7 @@ app.get("/orders/user/:id", (req, res) => {
 });
 
 // =======================
-// GET ORDERS
+// GET ALL ORDERS
 // =======================
 app.get("/orders", (req, res) => {
   const sql = `
@@ -418,16 +503,16 @@ app.get("/orders", (req, res) => {
 
     FROM orders o
 
-    JOIN users u
+    LEFT JOIN users u
     ON o.user_id = u.id
 
-    JOIN order_status os
+    LEFT JOIN order_status os
     ON o.order_status = os.id
 
-    JOIN order_detail od
+    LEFT JOIN order_detail od
     ON o.id = od.order_id
 
-    JOIN books b
+    LEFT JOIN books b
     ON od.book_id = b.id
 
     ORDER BY o.date DESC
