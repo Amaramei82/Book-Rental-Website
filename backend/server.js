@@ -492,29 +492,19 @@ app.get("/orders", (req, res) => {
       o.payment_status,
       o.duration,
       o.date,
-
       od.price,
-
       b.name AS book_name,
-
       u.name AS customer_name,
-
       os.status_name
-
     FROM orders o
-
     LEFT JOIN users u
     ON o.user_id = u.id
-
     LEFT JOIN order_status os
     ON o.order_status = os.id
-
     LEFT JOIN order_detail od
     ON o.id = od.order_id
-
     LEFT JOIN books b
     ON od.book_id = b.id
-
     ORDER BY o.date DESC
   `;
 
