@@ -1,5 +1,6 @@
 <?php
 require('topNav.php');
+require('api_check.php');
 
 if (isset($_GET['type']) && $_GET['type'] != ' ') {
   $type = getSafeValue($con, $_GET['type']);

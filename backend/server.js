@@ -239,7 +239,7 @@ app.get("/books", (req, res) => {
       img: book.img || "",
 
       img_url:
-        `http://192.168.1.114:3001/Img/books/${book.img}`,
+        `http://10.152.173.210:3001/Img/books/${book.img}`,
     }));
 
     res.json(books);
@@ -294,7 +294,7 @@ app.get("/books/categories/:catId", (req, res) => {
       img: book.img || "",
 
       img_url:
-        `http://192.168.1.114:3001/Img/books/${book.img}`,
+        `http://10.152.173.210:3001/Img/books/${book.img}`,
     }));
 
     res.json(books);

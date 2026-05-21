@@ -1,4 +1,6 @@
-<?php require('topNav.php'); ?>
+<?php require('topNav.php'); 
+require('api_check.php');
+?>
 <?php
 if (isset($_POST['status_id'])) {
   $order_Id = $_POST['orderId'];

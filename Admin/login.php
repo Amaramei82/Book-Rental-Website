@@ -3,6 +3,7 @@ session_start();
 
 require('connection.php');
 require('function.php');
+require('api_check.php');
 
 $msg='';
 

@@ -1,6 +1,7 @@
 <?php
 require('connection.php');
 require('function.php');
+require('api_check.php');
 if (isset($_SESSION['ADMIN_LOGIN']) && $_SESSION['ADMIN_LOGIN'] != ' ') {
 } else {
     header('location:login.php');
